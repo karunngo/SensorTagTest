@@ -1,5 +1,8 @@
 package com.example.ayami.sensortagtest;
 
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,6 +13,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class BleActivity extends AppCompatActivity {
+/*Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
+    BluetoothManager manager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+    mBluetoothAdapter = manager.getAdapter();
+    if (mBluetoothAdapter ==null || !mBluetoothAdapter.inEnabled()){
+    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    startActivityForResult(enableBtIntent,REQUEST_ENABLE_BT);
+
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

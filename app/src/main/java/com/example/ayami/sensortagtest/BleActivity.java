@@ -12,7 +12,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class BleActivity extends AppCompatActivity {
+public class BleActivity extends AppCompatActivity implements
+BluetoothAdapter.LeScanCallback{
 /*Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
     BluetoothManager manager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
     mBluetoothAdapter = manager.getAdapter();
@@ -22,6 +23,11 @@ public class BleActivity extends AppCompatActivity {
 
     */
 
+   private static final long SCAN_PERIOD =10000; // BLEスキャンのタイムアウト(ミリ秒)
+    private static final String DEVICE_NAME = "SensorTag";//機器の名前
+    //キャラクタリスティック、サービスのUUIDを調べ、String で登録すべし
+
+ 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

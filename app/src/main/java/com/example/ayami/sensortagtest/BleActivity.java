@@ -1,33 +1,73 @@
 package com.example.ayami.sensortagtest;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class BleActivity extends AppCompatActivity implements
 BluetoothAdapter.LeScanCallback{
-/*Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
+//Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
     BluetoothManager manager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
-    mBluetoothAdapter = manager.getAdapter();
-    if (mBluetoothAdapter ==null || !mBluetoothAdapter.inEnabled()){
+    BluetoothAdapter mBluetoothAdapter = manager.getAdapter();
+    if (mBluetoothAdapter==null || !mBluetoothAdapter.inEnabled()){
     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
     startActivityForResult(enableBtIntent,REQUEST_ENABLE_BT);
 
-    */
+
 
    private static final long SCAN_PERIOD =10000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "SensorTag";//機器の名前
     //キャラクタリスティック、サービスのUUIDを調べ、String で登録すべし
 
- 
+        //BLE機器の検索
+    private void connect(){
+        mHandler.postDelayed(new Runnable(){
+            @Override
+        public void run(){
+                //タイムアウトの処理
+                mBluetoothAdapter.stopLeScan(BleActivity.this);
+            }
+        },SCAN_PERIOD);
+        mBluetoothAdapter.startLeScan(this);
+    }
+
+    //機器との接続
+    @Override
+    public void onLeScan(BluetoothDevice device,int rssi,byte[] scanRecord){
+        Log.d(TAG, "device found:" + device.getName());
+        if("SensorTag".equals(device.getName())){
+            //機器名がSensorTagと一致するものを探す
+
+            mBluetoothAdapter.stopLeScan(this);
+            //機器が見つかれば即スキャンを停止(電力消費を抑えるため)
+
+            mBluetoothGatt = device.connectGatt(getApplicationContext(),false,mBluetoothGattCallback);
+            //bluetoothと接続！　２番目をfalseにするとす、すぐに接続開始
+            //雪辱完了や危機からの受信はBluetoothGattCalbackで処理
+
+        }
+    }
+
+    //connectGatt()が成功するとこいつ↓が自動で呼ばれる。ここでサービスを検出
+    @Override
+    public void onConnectionStateChange(BluetoothGatt gatt,int status,int newState){
+        Log.d(TAG,"onConnectionStateChange:"+status+"->"+newState);
+    }
+
+}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

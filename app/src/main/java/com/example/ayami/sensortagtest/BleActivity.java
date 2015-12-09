@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -64,6 +65,14 @@ BluetoothAdapter.LeScanCallback{
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt,int status,int newState){
         Log.d(TAG,"onConnectionStateChange:"+status+"->"+newState);
+
+        if(newState== BluetoothProfile.STATE_CONNECTED) {
+            //GaTT接続成功しているので、サービスを検索する
+            gatt.discoverServices();
+            //サービス検索の成否はmBluetoothGattCallback.onServiceDiscoverdで受ける
+            }else if(newState==BluetoothProfile.STATE_DISCONNECTED){
+            mBluetoothGatt = null;
+        }
     }
 
 }

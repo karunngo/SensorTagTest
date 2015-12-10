@@ -18,6 +18,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.widget.TextView;
+
+
+import android.app.Activity;
 import android.bluetooth.*;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -46,8 +57,8 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
     private BluetoothManager mBluetoothManager;
     private BluetoothGatt mBluetoothGatt;
     private TextView mStatusText;
-
-        //このテキストは☆をあらわしてる
+    private final static int REQUEST_ENABLE_BT = 0;
+     //このテキストは☆をあらわしてる
 
 
     @Override
@@ -82,7 +93,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         //Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
         BluetoothManager manager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = manager.getAdapter();
-        if (mBluetoothAdapter==null || !mBluetoothAdapter.inEnabled()) {
+        if (mBluetoothAdapter==null || !mBluetoothAdapter.getDefaultAdapter().isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
@@ -191,7 +202,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
 
         @Override
         //Notificationを受信し状態を取得する
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d(TAG, "onCharacteristicRead:" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("READ成功");

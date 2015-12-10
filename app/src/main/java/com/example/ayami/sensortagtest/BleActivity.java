@@ -50,7 +50,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
 
-    private static final String TAG ="BLESamle";
+    private static final String TAG ="BLESample";
     private BleStatus mStatus = BleStatus.DISCONNECTED;
     private Handler mHandler;
     private BluetoothAdapter mBluetoothAdapter;
@@ -171,18 +171,18 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                 } else {
                     setStatus(BleStatus.SERVICE_FOUND);
 
-                    BluetoothGattCharacteristic characeristic = BluetoothGattCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
+                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
 
                     //キャラクタリスティックを見つけたか判定
-                    if (characeristic == null) {
+                    if (characteristic == null) {
                         setStatus(BleStatus.CHARACTERISTIC_NOT_FOUND);
                     } else {
                         //Notificationを要求する
                         // ↓これ何だろ。あとて調べよっと
-                        boolean registered = gatt.setCharacteristicNotification(characeristic, true);
+                        boolean registered = gatt.setCharacteristicNotification(characteristic, true);
 
                         //CharacteristicのNotification有効化
-                        BluetoothGattDescriptor descriptor = characeristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
+                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         gatt.writeDescriptor(descriptor);
                         //↓通知設定が完了したかどうかチェック

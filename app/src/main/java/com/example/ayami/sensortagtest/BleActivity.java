@@ -45,8 +45,8 @@ import java.util.UUID;
 public class BleActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback{
     private static final long SCAN_PERIOD =10000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "SensorTag 2.0";//機器の名前
-    private static final String DEVICE_ACCELEROMATER_SERVICE_UUID ="F000AA10-0451-4000-B000-000000000000 ";
-    private static final String DEVICE_ACCELEROMATER_DATA_UUID ="";
+    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
+    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000 ";
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
 
@@ -164,14 +164,14 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Log.d(TAG, "onServiceDiscoverd received" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                BluetoothGattService service = gatt.getService(UUID.fromString(DEVICE_ACCELEROMATER_SERVICE_UUID));
+                BluetoothGattService service = gatt.getService(UUID.fromString(DEVICE_MOVEMENT_SERVICE_UUID));
                 //サービスを見つけたか判定
                 if (service == null) {
                     setStatus(BleStatus.SERVICE_NOT_FOUND);
                 } else {
                     setStatus(BleStatus.SERVICE_FOUND);
 
-                    BluetoothGattCharacteristic characeristic = BluetoothGattCharacteristic(UUID.fromString(DEVICE_ACCELEROMATER_DATA_UUID));
+                    BluetoothGattCharacteristic characeristic = BluetoothGattCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
 
                     //キャラクタリスティックを見つけたか判定
                     if (characeristic == null) {
@@ -213,7 +213,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             Log.d(TAG, "onCharacteristicChanged");
             //Characteristicの値更新通知
 
-            if (DEVICE_ACCELEROMATER_DATA_UUID.equals(characteristic.getUuid().toString())) {
+            if (DEVICE_MOVEMENT_DATA_UUID.equals(characteristic.getUuid().toString())) {
                 //通知がある時の処理
             }
 

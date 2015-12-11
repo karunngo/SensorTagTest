@@ -46,7 +46,8 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
     private static final long SCAN_PERIOD =15000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "CC2650 SensorTag";//機器の名前
     private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
-    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000 ";
+    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000";
+    private static final String DEVICE_MOVEMENT_DATA_CONFING_UUID="F000AA83-0451-4000-B000-000000000000";
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
 
@@ -116,7 +117,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             public void run() {
                 //タイムアウトの処理
                 mBluetoothAdapter.stopLeScan(BleActivity.this);
-                Log.e("postDelayed","☆timeout!");
+                Log.e("postDelayed", "☆timeout!");
             }
         }, SCAN_PERIOD);
         mBluetoothAdapter.stopLeScan(this);

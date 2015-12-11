@@ -43,26 +43,31 @@ import android.widget.TextView;
 import java.util.UUID;
 
 public class BleActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback{
-    private static final long SCAN_PERIOD =10000; // BLEスキャンのタイムアウト(ミリ秒)
-    private static final String DEVICE_NAME = "SensorTag 2.0";//機器の名前
+    private static final long SCAN_PERIOD =15000; // BLEスキャンのタイムアウト(ミリ秒)
+    private static final String DEVICE_NAME = "CC2650 SensorTag";//機器の名前
     private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
     private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000 ";
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
 
     private static final String TAG ="BLESample";
-    private BleStatus mStatus = BleStatus.DISCONNECTED;
-    private Handler mHandler;
+//    private BleStatus mStatus = BleStatus.DISCONNECTED;
+    private Handler mHandler ;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothManager mBluetoothManager;
     private BluetoothGatt mBluetoothGatt;
     private TextView mStatusText;
     private final static int REQUEST_ENABLE_BT = 0;
+//    private BleStatus nowStatus;
      //このテキストは☆をあらわしてる
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //mStatusText = (TextView)findViewById(R.id.text_status);
+
+        mHandler = new Handler();
+
+        System.out.println("すたーと！");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ble);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -80,12 +85,14 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         findViewById(R.id.connectButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("☆ボタンおしたよ！");
                 connect();
             }
         });
         findViewById(R.id.disconnectButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("☆ボタンおしたよ！");
                 disconnect();
             }
         });
@@ -109,15 +116,12 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             public void run() {
                 //タイムアウトの処理
                 mBluetoothAdapter.stopLeScan(BleActivity.this);
-                //↓これどういう意味？要調査
-                if (BleStatus.SCANNING.equals(mStatus)) {
-                    setStatus(BleStatus.SCAN_FAILED);
-                }
+                Log.e("postDelayed","☆timeout!");
             }
         }, SCAN_PERIOD);
         mBluetoothAdapter.stopLeScan(this);
         mBluetoothAdapter.startLeScan(this);
-        setStatus(BleStatus.SCANNING);
+        Log.i("postDelayed", "☆Scanning");
     }
 
     //BLE機器との接続を解除するもの
@@ -125,17 +129,17 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         if (mBluetoothGatt !=null){
             mBluetoothGatt.close();
             mBluetoothGatt=null;
-            setStatus(BleStatus.CLOSED);
+            Log.i("disconnect", "☆mBluetoothGatt="+mBluetoothGatt.toString());
         }
     }
 
     @Override
     public void onLeScan(BluetoothDevice device,int rssi,byte[] scanRecord){
         //機器との接続
-        Log.d(TAG, "device found:" + device.getName());
+        Log.d(TAG, "☆device found:" + device.getName());
         //機器名がSensorTagと一致するものを探す
         if(DEVICE_NAME.equals(device.getName())){
-            setStatus(BleStatus.DEVICE_FOUND);
+        Log.i("onLeScan","☆device Connecting");
             mBluetoothAdapter.stopLeScan(this);
             //機器が見つかれば即スキャンを停止(電力消費を抑えるため)
             mBluetoothGatt = device.connectGatt(this,false,mBluetoothGattCallback);
@@ -148,7 +152,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         //connectGatt()が成功するとこいつ↓が自動で呼ばれる。ここでサービスを検出
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Log.d(TAG, "onConnectionStateChange:" + status + "->" + newState);
+            Log.d(TAG, "☆onConnectionStateChange:" + status + "->" + newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 //GaTT接続成功しているので、サービスを検索する
@@ -156,27 +160,39 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                 //サービス検索の成否はmBluetoothGattCallback.onServiceDiscoverdで受ける
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mBluetoothGatt = null;
+                Log.e("onConnectionStateChange","☆Gattが切れちゃった!");
+
             }
         }
 
         @Override
         //サービスの検出をする
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Log.d(TAG, "onServiceDiscoverd received" + status);
+            Log.d(TAG, "☆onServiceDiscoverd received" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 BluetoothGattService service = gatt.getService(UUID.fromString(DEVICE_MOVEMENT_SERVICE_UUID));
+//                BluetoothGattService service = gatt.getService(UUID.fromString(DEVICE_MOVEMENT_SERVICE_UUID));
                 //サービスを見つけたか判定
                 if (service == null) {
-                    setStatus(BleStatus.SERVICE_NOT_FOUND);
+                    Log.e("onServicesDiscovered", "☆service is not found!");
                 } else {
-                    setStatus(BleStatus.SERVICE_FOUND);
+                    Log.i("onServicesDiscovered", "☆service is founded");
+                    System.out.println("☆service=" + service.toString());
+
+                    System.out.println("☆characteristic = "+ service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID)).toString());
+
+                    //BluetoothGattCharacteristic characteristic =null;
+
 
                     BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
+                    Log.i("onServicesDiscovered", "☆キャラクタリスティックを探しているよ");
+
 
                     //キャラクタリスティックを見つけたか判定
                     if (characteristic == null) {
-                        setStatus(BleStatus.CHARACTERISTIC_NOT_FOUND);
+                        Log.e("onServicesDiscovered", "☆characteristic is not found!");
                     } else {
+                        Log.i("onServicesDiscovered", "☆characteristic is founded");
                         //Notificationを要求する
                         // ↓これ何だろ。あとて調べよっと
                         boolean registered = gatt.setCharacteristicNotification(characteristic, true);
@@ -187,9 +203,9 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                         gatt.writeDescriptor(descriptor);
                         //↓通知設定が完了したかどうかチェック
                         if (registered) {
-                            setStatus(BleStatus.NOTIFICATION_REGISTERED);
+                            Log.i("onServicesDiscovered", "☆Notification is registered");
                         } else {
-                            setStatus(BleStatus.NOTIFICATION_REGISTER_FAILED);
+                            Log.e("onServicesDiscovered", "☆Notification register failed!");
                         }
                     }
 
@@ -203,23 +219,26 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         @Override
         //Notificationを受信し状態を取得する
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(TAG, "onCharacteristicRead:" + status);
+            Log.d(TAG, "☆onCharacteristicRead:" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                System.out.println("READ成功");
+                System.out.println("☆READ成功");
             }
         }
 
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.d(TAG, "onCharacteristicChanged");
+            Log.d(TAG, "☆onCharacteristicChanged");
             //Characteristicの値更新通知
 
             if (DEVICE_MOVEMENT_DATA_UUID.equals(characteristic.getUuid().toString())) {
+                System.out.println("☆通知あり！");
+                Byte value = characteristic.getValue()[0];
+                System.out.println(value.toString());
                 //通知がある時の処理
             }
 
         }
     };
-
+/*
     private void setStatus(BleStatus status) {
         mStatus = status; mHandler.sendMessage(status.message());
     }
@@ -232,7 +251,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             return message;
         }
     }
-
+*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

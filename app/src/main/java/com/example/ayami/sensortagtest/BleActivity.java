@@ -45,10 +45,12 @@ import java.util.UUID;
 public class BleActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback{
     private static final long SCAN_PERIOD =15000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "CC2650 SensorTag";//機器の名前
-//    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
-    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用
-//    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000";
-    private static final String DEVICE_MOVEMENT_DATA_UUID ="0000FFE1-0000-1000-8000-00805f9b34fb";//テスト用
+    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
+//    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用
+    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000";
+//    private static final String DEVICE_MOVEMENT_DATA_UUID ="0000FFE1-0000-1000-8000-00805f9b34fb";//テスト用
+    private static final String DEVICE_MOVEMENT_CONFIG_UUID ="F000AA83-0451-4000-B000-000000000000";
+
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
 

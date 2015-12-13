@@ -45,11 +45,11 @@ import java.util.UUID;
 public class BleActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback{
     private static final long SCAN_PERIOD =15000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "CC2650 SensorTag";//機器の名前
-    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="F000AA80-0451-4000-B000-000000000000";
-//    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用
-    private static final String DEVICE_MOVEMENT_DATA_UUID ="F000AA81-0451-4000-B000-000000000000";
-//    private static final String DEVICE_MOVEMENT_DATA_UUID ="0000FFE1-0000-1000-8000-00805f9b34fb";//テスト用
-    private static final String DEVICE_MOVEMENT_CONFIG_UUID ="F000AA83-0451-4000-B000-000000000000";
+    private static final String DEVICE_MOVEMENT_SERVICE_UUID ="f000aa80-0451-4000-b000-000000000000";
+  //  private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用
+    private static final String DEVICE_MOVEMENT_DATA_UUID ="f000aa81-0451-4000-b000-000000000000";
+  // private static final String DEVICE_MOVEMENT_DATA_UUID ="0000FFE1-0000-1000-8000-00805f9b34fb";//テスト用
+    private static final String DEVICE_MOVEMENT_CONFIG_UUID ="F000aa83-0451-4000-b000-000000000000";
 
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
@@ -185,29 +185,47 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
 
                     System.out.println("☆characteristic = " + service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID)).toString());
 
-                    //BluetoothGattCharacteristic characteristic =null;
 
-
-                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
+                    BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
+                    BluetoothGattCharacteristic configCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_CONFIG_UUID));
                     Log.i("onServicesDiscovered", "☆キャラクタリスティックを探しているよ");
 
+                    //Configを１に変えるよ
+
+                    if (configCharacteristic == null) {
+                        Log.e("onServicesDiscovered", "☆configCharacteristic is not found!");
+                    } else {
+                        Log.i("onServicesDiscovered", "☆configCharacteristic is founded");
+                        //Characteristicのconfigを変更
+                        byte configNum = 1;
+                        configCharacteristic.setValue(new byte[]{configNum});
+                        gatt.writeCharacteristic(configCharacteristic);
+                        gatt.readCharacteristic(configCharacteristic);
+                        //↓通知設定が完了したかどうかチェック
+                        Log.i("onServicesDiscoverd","☆set Number at configCharacteristic");
+
+                    }
 
                     //キャラクタリスティックを見つけたか判定
-                    if (characteristic == null) {
-                        Log.e("onServicesDiscovered", "☆characteristic is not found!");
+                    if (dataCharacteristic == null) {
+                        Log.e("onServicesDiscovered", "☆dataCharacteristic is not found!");
                     } else {
-                        Log.i("onServicesDiscovered", "☆characteristic is founded");
+                        Log.i("onServicesDiscovered", "☆dataCharacteristic is founded");
                         //Notificationを要求する
                         // ↓これ何だろ。あとて調べよっと
-                        boolean registered = gatt.setCharacteristicNotification(characteristic, true);
+                        boolean registered = gatt.setCharacteristicNotification(dataCharacteristic, true);
 
                         //CharacteristicのNotification有効化
-                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
+                        BluetoothGattDescriptor descriptor = dataCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         gatt.writeDescriptor(descriptor);
                         //↓通知設定が完了したかどうかチェック
                         if (registered) {
                             Log.i("onServicesDiscovered", "☆Notification is registered");
+                            Log.i("☆","UUID ="+dataCharacteristic.getUuid().toString());
+                            System.out.println("☆dataCharacteristic=" + dataCharacteristic.toString());
+                                    gatt.readCharacteristic(dataCharacteristic);
+
                         } else {
                             Log.e("onServicesDiscovered", "☆Notification register failed!");
                         }
@@ -227,6 +245,22 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("☆READ成功");
             }
+            //dataのreadを受け取る
+            if (DEVICE_MOVEMENT_DATA_UUID.equals(characteristic.getUuid().toString())) {
+                System.out.println("☆DATAよんだよ！あり！");
+                Byte value = characteristic.getValue()[0];
+                System.out.println("☆"+value.toString());
+                //通知がある時の処理
+            }else {
+                System.out.println("☆DATA呼んだけど上手くいかず");
+            }
+            if(DEVICE_MOVEMENT_CONFIG_UUID.equals(characteristic.getUuid().toString())){
+                Byte configValue = characteristic.getValue()[0];
+                System.out.println("☆CONFIGの値："+ configValue);
+            }else {
+                System.out.println("☆CONFIG呼んだけど上手くいかず");
+            }
+
         }
         @Override
 
@@ -237,7 +271,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             if (DEVICE_MOVEMENT_DATA_UUID.equals(characteristic.getUuid().toString())) {
                 System.out.println("☆通知あり！");
                 Byte value = characteristic.getValue()[0];
-                System.out.println(value.toString());
+                System.out.println("☆"+value.toString());
                 //通知がある時の処理
             }
 

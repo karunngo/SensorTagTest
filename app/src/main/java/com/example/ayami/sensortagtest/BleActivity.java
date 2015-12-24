@@ -106,6 +106,8 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             @Override
             public void onClick(View v) {
                 System.out.println("☆地図ボタンおしたよ！");
+                Intent intent = new Intent(BleActivity.this,MapActivity.class);
+                startActivity(intent);
             }
         });
 

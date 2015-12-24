@@ -102,6 +102,14 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             }
         });
 
+        findViewById(R.id.mapButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("☆地図ボタンおしたよ！");
+            }
+        });
+
+
         //Bluetoothが接続が有効かチェック。上手くいかないときは、ダイアログ表示。なぜがgetAdapterが動かないので保留
         BluetoothManager manager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = manager.getAdapter();

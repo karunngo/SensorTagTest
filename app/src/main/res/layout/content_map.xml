@@ -9,4 +9,12 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior" tools:showIn="@layout/activity_map"
     tools:context="com.example.ayami.sensortagtest.MapActivity">
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="自宅登録"
+        android:id="@+id/addGPSButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

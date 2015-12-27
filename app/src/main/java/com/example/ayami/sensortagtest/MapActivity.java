@@ -22,6 +22,7 @@ import android.view.View;
 public class MapActivity extends AppCompatActivity {
     LocationManager manager;
     LocationListener localistener;
+    static String packagename ="com.example.ayami.sensortagtest";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +72,16 @@ public class MapActivity extends AppCompatActivity {
     //リスナーを登録
     protected void onResume() {
         super.onResume();
-        //Locationマネージャーにリスナーを設定
-        manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, localistener);
+        int permissionNumber=getPackageManager().checkPermission(Manifest.permission.ACCESS_FINE_LOCATION,packagename);
+        if (manager !=null){
+            if(permissionNumber==PackageManager.PERMISSION_GRANTED){
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, localistener);
+            }else{
+                Log.e("☆MapActivity","パーミッションが無効！");
+            }
+        }else{
+            Log.e("☆MapActivity","Locationmanagerがnull!");
+        }
+
     }
 }

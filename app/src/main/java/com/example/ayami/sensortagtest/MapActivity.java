@@ -42,8 +42,28 @@ public class MapActivity extends AppCompatActivity {
         findViewById(R.id.addGPSButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("☆GPSボタンおしたよ！");
+                //自宅の位置を登録するボタン
+                System.out.println("☆addGPSボタンおしたよ！");
 
+            }
+        });
+
+        findViewById(R.id.startGPSButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //位置計測を開始するボタン
+                System.out.println("☆startGPSボタンおしたよ！");
+                onResume();
+
+            }
+        });
+
+        findViewById(R.id.stopGPSButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //位置計測を終了するボタン
+                System.out.println("☆stopGPSボタンおしたよ！");
+                onPause();
             }
         });
 

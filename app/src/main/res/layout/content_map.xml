@@ -16,5 +16,23 @@
         android:text="自宅登録"
         android:id="@+id/addGPSButton"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="測定開始"
+        android:id="@+id/startGPSButton"
+        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="測定停止"
+        android:id="@+id/stopGPSButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

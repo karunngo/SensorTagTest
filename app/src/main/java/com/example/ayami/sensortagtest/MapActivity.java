@@ -77,11 +77,26 @@ public class MapActivity extends AppCompatActivity {
             if(permissionNumber==PackageManager.PERMISSION_GRANTED){
                 manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, localistener);
             }else{
-                Log.e("☆MapActivity","パーミッションが無効！");
+                Log.e("☆MapActivity onResume()","パーミッションが無効！");
             }
         }else{
             Log.e("☆MapActivity","Locationmanagerがnull!");
         }
 
+    }
+
+    protected void onPause() {
+        super.onPause();
+        //LocationManagerからリスナーを削除
+        int permissionNumber = getPackageManager().checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, packagename);
+        if (manager != null) {
+            if (permissionNumber == PackageManager.PERMISSION_GRANTED) {
+                manager.removeUpdates(localistener);
+            } else {
+                Log.e("☆MapActivity onPause", "パーミッションが無効！");
+            }
+        }else{
+            Log.e("☆MapActivity onPause","LocationManagerがNull!");
+        }
     }
 }

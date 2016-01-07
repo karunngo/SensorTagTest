@@ -124,4 +124,8 @@ public class MapActivity extends AppCompatActivity {
             Log.e("☆MapActivity onPause","LocationManagerがNull!");
         }
     }
+    protected void onDestroy() {
+        super.onDestroy();
+        onPause();
+    }
 }

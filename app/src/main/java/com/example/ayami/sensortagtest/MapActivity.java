@@ -32,6 +32,7 @@ public class MapActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        System.out.println("☆MapActivity onCreate();Listener作成");
         localistener = new LocationListener() {
             //onLocationChange:位置情報が変化した時に呼び出される
             public void onLocationChanged(Location location) {
@@ -116,6 +117,7 @@ public class MapActivity extends AppCompatActivity {
         if (manager != null) {
             if (permissionNumber == PackageManager.PERMISSION_GRANTED) {
                 manager.removeUpdates(localistener);
+                Log.e("☆MapActivity onPause", "切断しました");
             } else {
                 Log.e("☆MapActivity onPause", "パーミッションが無効！");
             }
@@ -125,6 +127,16 @@ public class MapActivity extends AppCompatActivity {
     }
     protected void onDestroy() {
         super.onDestroy();
-        onPause();
+        int permissionNumber = getPackageManager().checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, packagename);
+        if (manager != null) {
+            if (permissionNumber == PackageManager.PERMISSION_GRANTED) {
+                manager.removeUpdates(localistener);
+                Log.i("☆MapActivity onDestroy", "切断しました");
+            } else {
+                Log.e("☆MapActivity onDestroy", "パーミッションが無効！");
+            }
+        }else{
+            Log.e("☆MapActivity onDestroy","LocationManagerがNull!");
+        }
     }
 }

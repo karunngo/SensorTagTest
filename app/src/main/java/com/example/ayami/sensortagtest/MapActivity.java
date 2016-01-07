@@ -31,6 +31,29 @@ public class MapActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        localistener = new LocationListener() {
+            //onLocationChange:位置情報が変化した時に呼び出される
+            public void onLocationChanged(Location location) {
+                Log.i("☆", "位置情報取得成功");
+                String latitude = Double.toString(location.getLatitude());
+                String longitude = Double.toString(location.getLongitude());
+                System.out.println("☆緯度" + latitude + "経度" + longitude);
+            }
+            public void onProviderEnabled(String provider) {
+                Log.i("☆MapActivity", "位置情報プロバイダが有効になりました");
+            }
+
+            public void onProviderDisabled(String provider) {
+                Log.i("☆MapActivity", "位置情報プロバイダが無効になりました");
+
+            }
+
+            public void onStatusChanged(String provider, int Status, Bundle extras) {
+                Log.i("☆MapActivity", "位置情報プロバイダの状態変化。Status="+Status);
+            }
+        };
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,25 +90,6 @@ public class MapActivity extends AppCompatActivity {
             }
         });
 
-        manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        localistener = new LocationListener() {
-            //onLocationChange:位置情報が変化した時に呼び出される
-            public void onLocationChanged(Location location) {
-                Log.i("☆", "位置情報取得成功");
-                String latitude = Double.toString(location.getLatitude());
-                String longitude = Double.toString(location.getLongitude());
-                System.out.println("☆緯度" + latitude + "経度" + longitude);
-            }
-
-            public void onProviderEnabled(String procider) {
-            }
-
-            public void onProviderDisabled(String procider) {
-            }
-
-            public void onStatusChanged(String provider, int Status, Bundle extras) {
-            }
-        };
     }
 
     @Override
@@ -96,6 +100,7 @@ public class MapActivity extends AppCompatActivity {
         if (manager !=null){
             if(permissionNumber==PackageManager.PERMISSION_GRANTED){
                 manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, localistener);
+                Log.i("☆MapActivity onResume()", "Locationをrequestしたよ！");
             }else{
                 Log.e("☆MapActivity onResume()","パーミッションが無効！");
             }

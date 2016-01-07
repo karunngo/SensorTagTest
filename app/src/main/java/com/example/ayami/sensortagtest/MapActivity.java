@@ -70,7 +70,7 @@ public class MapActivity extends AppCompatActivity {
 
             }
         });
-
+/**
         findViewById(R.id.startGPSButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,9 +89,8 @@ public class MapActivity extends AppCompatActivity {
                 onPause();
             }
         });
-
+ */
     }
-
     @Override
     //リスナーを登録
     protected void onResume() {

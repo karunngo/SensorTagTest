@@ -47,13 +47,19 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
     private static final long SCAN_PERIOD =15000; // BLEスキャンのタイムアウト(ミリ秒)
     private static final String DEVICE_NAME = "CC2650 SensorTag";//機器の名前
     private static final String DEVICE_MOVEMENT_SERVICE_UUID ="f000aa80-0451-4000-b000-000000000000";
-  //  private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用-ボタン
+    //private static final String DEVICE_MOVEMENT_SERVICE_UUID ="0000FFE0-0000-1000-8000-00805f9b34fb";//テスト用-ボタン
   //  
     private static final String DEVICE_MOVEMENT_DATA_UUID ="f000aa81-0451-4000-b000-000000000000";
   // private static final String DEVICE_MOVEMENT_DATA_UUID ="0000FFE1-0000-1000-8000-00805f9b34fb";//テスト用
     private static final String DEVICE_MOVEMENT_CONFIG_UUID ="F000aa83-0451-4000-b000-000000000000";
     private static final String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     //サービス名はAccelerometer Serviceっぽい。キャラクタはどれかよくわからないorz
+
+    //configにWriteする値
+    //2つにわける。今回は0011 1000(0から7まで4,5,6をon)＋0000 0001(89が01) を書く
+//    private static final  byte configNum =0x007F;
+    private static final  byte configByte1 =0x38;
+    private static final  byte configByte2 =0x01;
 
     private static final String TAG ="BLESample";
 //    private BleStatus mStatus = BleStatus.DISCONNECTED;
@@ -154,7 +160,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
         Log.d(TAG, "☆device found:" + device.getName());
         //機器名がSensorTagと一致するものを探す
         if(DEVICE_NAME.equals(device.getName())){
-        Log.i("onLeScan","☆device Connecting");
+        Log.i("onLeScan", "☆device Connecting");
             mBluetoothAdapter.stopLeScan(this);
             //機器が見つかれば即スキャンを停止(電力消費を抑えるため)
             mBluetoothGatt = device.connectGatt(this,false,mBluetoothGattCallback);
@@ -196,10 +202,10 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
 
                     System.out.println("☆characteristic = " + service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID)).toString());
 
-
                     BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
                     BluetoothGattCharacteristic configCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_CONFIG_UUID));
-                //    BluetoothGattCharacteristic notifyCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_NOTIFY_UUID));
+
+                    //    BluetoothGattCharacteristic notifyCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_NOTIFY_UUID));
                 //    Log.i("onServicesDiscovered", "☆キャラクタリスティックを探しているよ");
 
                     //Configを１に変えるよ
@@ -209,14 +215,25 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                         } else {
                             Log.i("onServicesDiscovered", "☆configCharacteristic is founded");
                         //Characteristicのconfigを変更
-                              gatt.writeCharacteristic(configCharacteristic);
+//                        if(DEVICE_MOVEMENT_CONFIG_UUID.equals(configCharacteristic.getUuid().toString())){
+
+                             byte[] motionEnable = new byte[2];
+                             motionEnable[0]=configByte1;
+                             motionEnable[1]=configByte2;
+
+                            //byte[]motionEnable=new byte[1];
+                           // motionEnable[0]=configByte1;
+                            configCharacteristic.setValue(motionEnable);
+    //                    }
+//                              gatt.writeCharacteristic(configCharacteristic);
                              if(gatt.writeCharacteristic(configCharacteristic)){
                                  System.out.println("onServicesDiscoverd ☆set Number at configCharacteristic");
+                                 System.out.println("☆configCharacteristic=" + configCharacteristic.toString());
                              }else{
                                  Log.e("onServicesDiscoverd","☆Writing失敗!");
                             }
-
                         }
+
                     //キャラクタリスティックを見つけたか判定
                     if (dataCharacteristic == null) {
                         Log.e("onServicesDiscovered", "☆dataCharacteristic is not found!");
@@ -235,8 +252,8 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                         if (registered) {
                             Log.i("onServicesDiscovered", "☆Notification is registered");
                             Log.i("☆","UUID ="+dataCharacteristic.getUuid().toString());
+                            System.out.println(gatt.readCharacteristic(dataCharacteristic));
                             System.out.println("☆dataCharacteristic=" + dataCharacteristic.toString());
-                                    gatt.readCharacteristic(dataCharacteristic);
 
                         } else {
                             Log.e("onServicesDiscovered", "☆Notification register failed!");
@@ -261,7 +278,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
             if (DEVICE_MOVEMENT_DATA_UUID.equals(characteristic.getUuid().toString())) {
                 System.out.println("☆DATAよんだよ！あり！");
                 Byte value = characteristic.getValue()[0];
-                System.out.println("☆"+value.toString());
+                System.out.println("☆Dataの値:"+value.toString());
                 //通知がある時の処理
             }else {
                 System.out.println("☆DATA呼んだけど上手くいかず");
@@ -281,12 +298,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                 System.out.println("☆Writeスタート");
             }
 
-            if(DEVICE_MOVEMENT_CONFIG_UUID.equals(characteristic.getUuid().toString())){
-                byte configNum =0x007F;
-                characteristic.setValue(new byte[]{configNum});
 
-                Log.i("onServicesDiscoverd", "☆set Number at configCharacteristic");
-            }
         }
         @Override
 

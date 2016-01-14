@@ -211,7 +211,7 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                         //Characteristicのconfigを変更
                               gatt.writeCharacteristic(configCharacteristic);
                              if(gatt.writeCharacteristic(configCharacteristic)){
-                                 Log.i("onServicesDiscoverd","☆set Number at configCharacteristic");
+                                 System.out.println("onServicesDiscoverd ☆set Number at configCharacteristic");
                              }else{
                                  Log.e("onServicesDiscoverd","☆Writing失敗!");
                             }

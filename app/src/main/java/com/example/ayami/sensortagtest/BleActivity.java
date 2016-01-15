@@ -202,38 +202,8 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
 
                     System.out.println("☆characteristic = " + service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID)).toString());
 
+
                     BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_DATA_UUID));
-                    BluetoothGattCharacteristic configCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_CONFIG_UUID));
-
-                    //    BluetoothGattCharacteristic notifyCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_NOTIFY_UUID));
-                //    Log.i("onServicesDiscovered", "☆キャラクタリスティックを探しているよ");
-
-                    //Configを１に変えるよ
-
-                    if (configCharacteristic == null) {
-                            Log.e("onServicesDiscovered", "☆configCharacteristic is not found!");
-                        } else {
-                            Log.i("onServicesDiscovered", "☆configCharacteristic is founded");
-                        //Characteristicのconfigを変更
-//                        if(DEVICE_MOVEMENT_CONFIG_UUID.equals(configCharacteristic.getUuid().toString())){
-
-                             byte[] motionEnable = new byte[2];
-                             motionEnable[0]=configByte1;
-                             motionEnable[1]=configByte2;
-
-                            //byte[]motionEnable=new byte[1];
-                           // motionEnable[0]=configByte1;
-                            configCharacteristic.setValue(motionEnable);
-    //                    }
-//                              gatt.writeCharacteristic(configCharacteristic);
-                             if(gatt.writeCharacteristic(configCharacteristic)){
-                                 System.out.println("onServicesDiscoverd ☆set Number at configCharacteristic");
-                                 System.out.println("☆configCharacteristic=" + configCharacteristic.toString());
-                             }else{
-                                 Log.e("onServicesDiscoverd","☆Writing失敗!");
-                            }
-                        }
-
                     //キャラクタリスティックを見つけたか判定
                     if (dataCharacteristic == null) {
                         Log.e("onServicesDiscovered", "☆dataCharacteristic is not found!");
@@ -242,10 +212,12 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
                         //Notificationを要求する
                         // ↓これ何だろ。あとて調べよっと
                         boolean registered = gatt.setCharacteristicNotification(dataCharacteristic, true);
-
+                        System.out.println("☆registed定義した");
                         //CharacteristicのNotification有効化
                         BluetoothGattDescriptor descriptor = dataCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
+                        System.out.println("☆descriptor.setValueの前");
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        System.out.println("☆writeDescriptorの前");
                         gatt.writeDescriptor(descriptor);
                         //↓通知設定が完了したかどうかチェック
 
@@ -257,7 +229,40 @@ public class BleActivity extends AppCompatActivity implements BluetoothAdapter.L
 
                         } else {
                             Log.e("onServicesDiscovered", "☆Notification register failed!");
+                            System.out.println("registered="+registered);
                         }
+                    }
+
+
+                    BluetoothGattCharacteristic configCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_CONFIG_UUID));
+
+                    //    BluetoothGattCharacteristic notifyCharacteristic = service.getCharacteristic(UUID.fromString(DEVICE_MOVEMENT_NOTIFY_UUID));
+                //    Log.i("onServicesDiscovered", "☆キャラクタリスティックを探しているよ");
+
+
+                    if (configCharacteristic == null) {
+                            Log.e("onServicesDiscovered", "☆configCharacteristic is not found!");
+                    } else{
+                        Log.i("onServicesDiscovered", "☆configCharacteristic is founded");
+                        //Characteristicのconfigを変更
+//                        if(DEVICE_MOVEMENT_CONFIG_UUID.equals(configCharacteristic.getUuid().toString())){
+
+                        System.out.println("☆gatt.writeCharacteritic=" + gatt.writeCharacteristic(configCharacteristic));
+                        //     byte[] motionEnable = new byte[2];
+                        //     motionEnable[0]=configByte1;
+                        //     motionEnable[1]=configByte2;
+
+                            //byte[]motionEnable=new byte[1];
+                           // motionEnable[0]=configByte1;
+                        configCharacteristic.setValue(new byte[] { configByte1, configByte2 });
+    //                    }
+//                              gatt.writeCharacteristic(configCharacteristic);
+//                             if(gatt.writeCharacteristic(configCharacteristic)){
+                        System.out.println("onServicesDiscoverd ☆set Number at configCharacteristic");
+                        System.out.println("☆configCharacteristic=" + configCharacteristic.toString());
+//                             }else{
+//                                 Log.e("onServicesDiscoverd","☆Writing失敗!");
+//                            }
                     }
 
                 }
